@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.XR;
 
 [AddComponentMenu("Nokobot/Modern Guns/Simple Shoot")]
@@ -21,14 +23,20 @@ public class SimpleShoot : MonoBehaviour
     [Tooltip("Bullet Speed")][SerializeField] private float shotPower = 500f;
     [Tooltip("Casing Ejection Speed")][SerializeField] private float ejectPower = 150f;
     [Tooltip("Delay in seconds between shots")][SerializeField] private float shotDelay = 0.5f;
+    [Tooltip("Maximum ammo count")][SerializeField] private int maxAmmo = 10; // Add this line to set the maximum ammo count
 
     [Header("Sound Settings")]
     [Tooltip("Sound effect for shooting the gun")]
     [SerializeField] private AudioClip shootSound;
 
+    [Header("UI References")]
+    [Tooltip("TextMeshProUGUI object to display ammo count")]
+    [SerializeField] private TextMeshProUGUI ammoText; // Add this line to reference the TextMeshProUGUI object
+
     private XRNode controllerNode = XRNode.RightHand; // Use XRNode.LeftHand if you want to use the left controller
     private bool canShoot = true; // Track if the gun can shoot
     private AudioSource audioSource;
+    private int currentAmmo; // Add this line to keep track of the current ammo count
 
     void Start()
     {
@@ -43,12 +51,15 @@ public class SimpleShoot : MonoBehaviour
         {
             audioSource.clip = shootSound;
         }
+
+        currentAmmo = maxAmmo; // Initialize current ammo
+        UpdateAmmoText(); // Update the ammo text at the start
     }
 
     void Update()
     {
         // If you want a different input, change it here
-        if (canShoot && IsOculusButtonPressed())
+        if (canShoot && IsOculusButtonPressed() && currentAmmo > 0) // Check if there is ammo left
         {
             // Calls animation on the gun that has the relevant animation events that will fire
             gunAnimator.SetTrigger("Fire");
@@ -98,6 +109,9 @@ public class SimpleShoot : MonoBehaviour
         {
             audioSource.Play();
         }
+
+        currentAmmo--; // Decrease the ammo count
+        UpdateAmmoText(); // Update the ammo text
     }
 
     // This function creates a casing at the ejection slot
@@ -118,4 +132,33 @@ public class SimpleShoot : MonoBehaviour
         // Destroy casing after X seconds
         Destroy(tempCasing, destroyTimer);
     }
+
+    // This function updates the ammo text
+    void UpdateAmmoText()
+    {
+        if (ammoText != null)
+        {
+            ammoText.text = "Ammo: " + currentAmmo;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Bullet"))
+        {
+            if (currentAmmo < 10)
+            {
+                Refill();
+                Destroy(other.gameObject); // Optionally destroy the battery object
+            }
+        }
+    }
+
+    private void Refill()
+    {
+        currentAmmo+=1; // Refill the ammo
+        UpdateAmmoText(); // Update the ammo text
+    }
+
+    
 }
