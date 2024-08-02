@@ -26,8 +26,8 @@ public class SimpleShoot : MonoBehaviour
     [Tooltip("Maximum ammo count")][SerializeField] private int maxAmmo = 10; // Add this line to set the maximum ammo count
 
     [Header("Sound Settings")]
-    [Tooltip("Sound effect for shooting the gun")]
-    [SerializeField] private AudioClip shootSound;
+    [Tooltip("AudioSource for shooting the gun")]
+    [SerializeField] private AudioSource shootAudioSource; // Add this line to reference the AudioSource object
 
     [Header("UI References")]
     [Tooltip("TextMeshProUGUI object to display ammo count")]
@@ -35,7 +35,6 @@ public class SimpleShoot : MonoBehaviour
 
     private XRNode controllerNode = XRNode.RightHand; // Use XRNode.LeftHand if you want to use the left controller
     private bool canShoot = true; // Track if the gun can shoot
-    private AudioSource audioSource;
     private int currentAmmo; // Add this line to keep track of the current ammo count
 
     void Start()
@@ -46,10 +45,9 @@ public class SimpleShoot : MonoBehaviour
         if (gunAnimator == null)
             gunAnimator = GetComponentInChildren<Animator>();
 
-        audioSource = gameObject.AddComponent<AudioSource>();
-        if (shootSound != null)
+        if (shootAudioSource == null)
         {
-            audioSource.clip = shootSound;
+            shootAudioSource = gameObject.AddComponent<AudioSource>();
         }
 
         currentAmmo = maxAmmo; // Initialize current ammo
@@ -105,9 +103,9 @@ public class SimpleShoot : MonoBehaviour
         Instantiate(bulletPrefab, barrelLocation.position, barrelLocation.rotation).GetComponent<Rigidbody>().AddForce(barrelLocation.forward * shotPower);
 
         // Play shooting sound
-        if (audioSource != null && shootSound != null)
+        if (shootAudioSource != null)
         {
-            audioSource.Play();
+            shootAudioSource.Play();
         }
 
         currentAmmo--; // Decrease the ammo count
@@ -156,9 +154,7 @@ public class SimpleShoot : MonoBehaviour
 
     private void Refill()
     {
-        currentAmmo+=1; // Refill the ammo
+        currentAmmo += 1; // Refill the ammo
         UpdateAmmoText(); // Update the ammo text
     }
-
-    
 }

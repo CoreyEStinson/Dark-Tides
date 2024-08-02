@@ -7,6 +7,7 @@ TagManager:
   - Battery
   - KillBox
   - Bullet
+  - Lightbulb
   layers:
   - Default
   - TransparentFX

@@ -4,6 +4,7 @@ using UnityEngine;
 public class LightingIntensityController : MonoBehaviour
 {
     public Light environmentLight; // Reference to the environment light
+    public ParticleSystem particleSystem; // Reference to the particle system
     public float fadeDuration = 60f; // 1 minute in seconds
     public float darkDuration = 780f; // 13 minutes in seconds
 
@@ -15,6 +16,12 @@ public class LightingIntensityController : MonoBehaviour
         if (environmentLight == null)
         {
             Debug.LogError("Environment light is not assigned.");
+            return;
+        }
+
+        if (particleSystem == null)
+        {
+            Debug.LogError("Particle system is not assigned.");
             return;
         }
 
@@ -40,10 +47,19 @@ public class LightingIntensityController : MonoBehaviour
     private IEnumerator FadeIntensity(float from, float to, float duration)
     {
         float elapsedTime = 0f;
+        bool halfwayPointReached = false;
 
         while (elapsedTime < duration)
         {
             environmentLight.intensity = Mathf.Lerp(from, to, elapsedTime / duration);
+
+            // Check if halfway point is reached
+            if (!halfwayPointReached && elapsedTime >= duration / 2)
+            {
+                particleSystem.gameObject.SetActive(false);
+                halfwayPointReached = true;
+            }
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }

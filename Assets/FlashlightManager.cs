@@ -11,6 +11,7 @@ public class FlashlightManager : MonoBehaviour
     private XRNode controllerNode = XRNode.RightHand; // Use the right hand controller
     private bool canToggle = true; // Track if the flashlight can be toggled
     public ImageFillManager imageFillManager; // Assign your ImageFillManager object in the inspector
+    [SerializeField] private float flashlightCharge = 100f; // Flashlight charge level
 
     void Update()
     {
@@ -20,7 +21,13 @@ public class FlashlightManager : MonoBehaviour
             ToggleFlashlight();
             StartCoroutine(ToggleCooldown());
         }
+        if (flashlightCharge <= 0)
+        {
+            flashlight.enabled = false;
+            imageFillManager.StopFilling();
+        }
     }
+
     private void Start()
     {
         if (flashlight != null)
@@ -28,7 +35,7 @@ public class FlashlightManager : MonoBehaviour
             flashlight.enabled = isFlashlightOn;
         }
     }
-    
+
     private bool IsOculusButtonPressed()
     {
         InputDevice controller = InputDevices.GetDeviceAtXRNode(controllerNode);
@@ -46,7 +53,7 @@ public class FlashlightManager : MonoBehaviour
 
     private void ToggleFlashlight()
     {
-        if (flashlight != null)
+        if (flashlight != null && flashlightCharge > 0)
         {
             isFlashlightOn = !isFlashlightOn;
             flashlight.enabled = isFlashlightOn;
@@ -65,5 +72,16 @@ public class FlashlightManager : MonoBehaviour
             }
         }
     }
-    
+
+    // Method to reduce the flashlight charge
+    public void ReduceCharge(float amount)
+    {
+        flashlightCharge = Mathf.Max(flashlightCharge - amount, 0);
+    }
+
+    // Method to recharge the flashlight
+    public void Recharge(float amount)
+    {
+        flashlightCharge = Mathf.Min(flashlightCharge + amount, 100f);
+    }
 }
