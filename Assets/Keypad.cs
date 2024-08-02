@@ -51,7 +51,7 @@ public class Keypad : MonoBehaviour
     // Method to check the entered code
     private void CheckCode()
     {
-        if (enteredCode == correctCode || enteredCode == debugCode)
+        if (enteredCode == correctCode) //|| enteredCode == debugCode)
         {
             Debug.Log("Code correct!");
             door.OpenDoor(); // Open the door
